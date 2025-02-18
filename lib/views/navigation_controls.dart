@@ -4,8 +4,10 @@ import 'package:provider/provider.dart';
 import '../managers/navigation_manager.dart';
 
 class NavigationControls extends StatelessWidget {
+  const NavigationControls({super.key});
+
   final LatLng defaultDestination =
-      const LatLng(5.6756723715960495, -0.19368805900030137);
+      const LatLng(5.589096665092986, -0.243007293288207);
 
   @override
   Widget build(BuildContext context) {
@@ -13,7 +15,7 @@ class NavigationControls extends StatelessWidget {
 
     return Positioned(
       right: 20,
-      bottom: 200,
+      bottom: 100,
       child: Column(
         children: [
           // Fetch Routes Button
