@@ -69,8 +69,18 @@ class NavigationControls extends StatelessWidget {
     final manager = context.read<NavigationManager>();
     final scaffoldMessenger = ScaffoldMessenger.of(context);
 
+    if (manager.destination == null) {
+      scaffoldMessenger.showSnackBar(
+        const SnackBar(
+          content: Text('Long press on map to set destination first'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+      return;
+    }
+
     try {
-      await manager.fetchRoutes(defaultDestination);
+      await manager.fetchRoutes();
     } catch (e) {
       scaffoldMessenger.showSnackBar(
         SnackBar(

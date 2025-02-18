@@ -20,6 +20,9 @@ class NavigationMap extends StatelessWidget {
             ? LatLng(manager.currentPosition!.latitude,
                 manager.currentPosition!.longitude)
             : const LatLng(0, 0),
+        onLongPress: (tapPosition, latLng) {
+          context.read<NavigationManager>().setDestination(latLng);
+        },
         initialZoom: 16,
         onTap: (_, latLng) => _handleMapTap(context, latLng),
       ),
@@ -32,6 +35,27 @@ class NavigationMap extends StatelessWidget {
         _buildCurrentPositionMarker(context),
         _buildStreetNameMarker(context),
         _buildDurationMarkers(context),
+        _buildDestinationMarker(context),
+      ],
+    );
+  }
+
+  Widget _buildDestinationMarker(BuildContext context) {
+    final manager = context.watch<NavigationManager>();
+
+    return MarkerLayer(
+      markers: [
+        if (manager.destination != null)
+          Marker(
+            point: manager.destination!,
+            width: 40,
+            height: 40,
+            child: const Icon(
+              Icons.location_on,
+              color: Colors.purple,
+              size: 40,
+            ),
+          ),
       ],
     );
   }

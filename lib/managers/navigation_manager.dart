@@ -32,6 +32,7 @@ class NavigationManager extends ChangeNotifier {
   List<LatLng> _simulationPoints = [];
   double _simulationProgress = 0.0;
   int _lastSpokenInstructionIndex = -1;
+  LatLng? _destination;
 
   NavigationManager({
     required RouteService routeService,
@@ -53,22 +54,28 @@ class NavigationManager extends ChangeNotifier {
   String get nextInstruction => _nextInstruction;
   double get nextTurnDistance => _nextTurnDistance;
   String get streetName => _streetName;
+  LatLng? get destination => _destination;
+
+  void setDestination(LatLng destination) {
+    _destination = destination;
+    notifyListeners();
+  }
 
   set currentPosition(Position? value) {
     _currentPosition = value;
     notifyListeners();
   }
 
-  Future<void> fetchRoutes(LatLng destination) async {
+  Future<void> fetchRoutes() async {
     try {
       _isFetching = true;
       notifyListeners();
 
-      if (_currentPosition == null) return;
+      if (_currentPosition == null || _destination == null) return;
 
       final routes = await _routeService.getRoutes(
         LatLng(_currentPosition!.latitude, _currentPosition!.longitude),
-        destination,
+        _destination!,
       );
 
       _routes = routes;
