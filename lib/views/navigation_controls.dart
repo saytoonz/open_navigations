@@ -30,11 +30,14 @@ class NavigationControls extends StatelessWidget {
           // Recenter Button
           FloatingActionButton(
             heroTag: 'recenter',
-            onPressed: () => manager.mapController.move(
-              LatLng(manager.currentPosition!.latitude,
-                  manager.currentPosition!.longitude),
-              manager.mapController.camera.zoom,
-            ),
+            onPressed: () {
+              context.read<NavigationManager>().recenterMap();
+              manager.mapController.move(
+                LatLng(manager.currentPosition!.latitude,
+                    manager.currentPosition!.longitude),
+                manager.mapController.camera.zoom,
+              );
+            },
             child: const Icon(Icons.my_location),
           ),
           const SizedBox(height: 10),

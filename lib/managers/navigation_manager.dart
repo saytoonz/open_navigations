@@ -33,6 +33,10 @@ class NavigationManager extends ChangeNotifier {
   double _simulationProgress = 0.0;
   int _lastSpokenInstructionIndex = -1;
   LatLng? _destination;
+  static const double _navZoom = 18.0;
+  static const double _defaultZoom = 16.0;
+  bool _userInteracted = false;
+  bool _showRecenterButton = false;
 
   NavigationManager({
     required RouteService routeService,
@@ -55,6 +59,24 @@ class NavigationManager extends ChangeNotifier {
   double get nextTurnDistance => _nextTurnDistance;
   String get streetName => _streetName;
   LatLng? get destination => _destination;
+  bool get userInteracted => _userInteracted;
+  bool get showRecenterButton => _showRecenterButton;
+
+  void handleMapInteraction() {
+    if (_isNavigating && !_userInteracted) {
+      _userInteracted = true;
+      _showRecenterButton = true;
+      notifyListeners();
+    }
+  }
+
+  void recenterMap() {
+    if (_isNavigating) {
+      _userInteracted = false;
+      _showRecenterButton = false;
+      notifyListeners();
+    }
+  }
 
   void setDestination(LatLng destination) {
     _destination = destination;
@@ -107,6 +129,9 @@ class NavigationManager extends ChangeNotifier {
     if (_routes.isEmpty) return;
 
     _isNavigating = true;
+    _userInteracted = false;
+    _showRecenterButton = false;
+    notifyListeners();
 
     final durationMinutes =
         _parseRouteValue(_routes[_activeRouteIndex].duration).round();
@@ -132,6 +157,8 @@ class NavigationManager extends ChangeNotifier {
     _positionSub?.cancel();
     _stopSimulation();
     _isNavigating = false;
+    _userInteracted = false;
+    _showRecenterButton = false;
     _eta = null;
     notifyListeners();
   }

@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:geolocator/geolocator.dart';
 import '../managers/navigation_manager.dart';
 import 'package:flutter_map/flutter_map.dart';
+import 'package:flutter_map_location_marker/flutter_map_location_marker.dart';
 
 class NavigationMap extends StatelessWidget {
   const NavigationMap({super.key});
@@ -25,6 +26,16 @@ class NavigationMap extends StatelessWidget {
         },
         initialZoom: 16,
         onTap: (_, latLng) => _handleMapTap(context, latLng),
+        onPositionChanged: (position, hasGesture) {
+          if (hasGesture && manager.isNavigating) {
+            context.read<NavigationManager>().handleMapInteraction();
+          }
+        },
+        onMapEvent: (event) {
+          if (manager.isNavigating && (event is MapEventMove)) {
+            context.read<NavigationManager>().handleMapInteraction();
+          }
+        },
       ),
       children: [
         TileLayer(
@@ -32,10 +43,30 @@ class NavigationMap extends StatelessWidget {
           subdomains: const ['a', 'b', 'c'],
         ),
         _buildRoutesLayer(context),
-        _buildCurrentPositionMarker(context),
+        // _buildCurrentPositionMarker(context),
         _buildStreetNameMarker(context),
         _buildDurationMarkers(context),
         _buildDestinationMarker(context),
+        CurrentLocationLayer(
+          style: LocationMarkerStyle(
+            marker: const DefaultLocationMarker(
+              color: Colors.blue,
+              child: Icon(Icons.navigation, color: Colors.white),
+            ),
+            markerSize: const Size(40, 40),
+            accuracyCircleColor: Colors.blue.withValues(alpha: .1),
+          ),
+          alignPositionOnUpdate: manager.isNavigating && !manager.userInteracted
+              ? AlignOnUpdate.always
+              : AlignOnUpdate.never,
+          alignDirectionOnUpdate:
+              manager.isNavigating && !manager.userInteracted
+                  ? AlignOnUpdate.never
+                  : AlignOnUpdate.never,
+          alignPositionAnimationDuration: const Duration(milliseconds: 1900),
+          moveAnimationDuration: const Duration(milliseconds: 2000),
+          alignDirectionAnimationDuration: const Duration(milliseconds: 2000),
+        ),
       ],
     );
   }
@@ -107,25 +138,6 @@ class NavigationMap extends StatelessWidget {
                 ),
               ],
             ),
-          ),
-      ],
-    );
-  }
-
-  Widget _buildCurrentPositionMarker(BuildContext context) {
-    final manager = context.watch<NavigationManager>();
-
-    return MarkerLayer(
-      markers: [
-        if (manager.currentPosition != null)
-          Marker(
-            point: LatLng(
-              manager.currentPosition!.latitude,
-              manager.currentPosition!.longitude,
-            ),
-            width: 40,
-            height: 40,
-            child: const Icon(Icons.location_pin, color: Colors.red, size: 40),
           ),
       ],
     );
